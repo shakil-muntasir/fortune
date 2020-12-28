@@ -5,14 +5,14 @@ const KarmaController = require("../controllers/karma");
 
 const fortuneValidator = require("../middlewares/validators/fortune");
 
-router.get("/api/fortunes", FortuneController.index);
+router.get("/fortunes", FortuneController.index);
 
-router.get("/api/fortune", FortuneController.show);
+router.get("/fortune", FortuneController.show);
 
-router.post("/api/fortunes", fortuneValidator, FortuneController.store);
+router.post("/fortunes", fortuneValidator, FortuneController.store);
 
-router.get("/api/karmas", KarmaController.index);
+router.get("/karmas", KarmaController.index);
 
-router.get("/api/karma", KarmaController.show);
+router.get("/karma", KarmaController.show);
 
 module.exports = router;

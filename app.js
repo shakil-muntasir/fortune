@@ -10,7 +10,7 @@ const apiRoutes = require("./routes/api");
 
 app.use(express.json());
 
-app.use(apiRoutes);
+app.use("/api", apiRoutes);
 
 app.listen(port, async () => {
     console.log(`Server running at PORT: ${port}`);
