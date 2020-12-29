@@ -13,9 +13,9 @@ const store = async (req, res) => {
 
 	const { name, email, password, confirm_password } = req.body;
 
-	const duplicate = await User.find({ email });
+	const duplicateUser = await User.findOne({ email });
 
-	if (duplicate.length > 0) {
+	if (duplicateUser) {
 		return res
 			.status(422)
 			.json({ errors: [{ msg: 'email already taken.' }] });
@@ -27,39 +27,42 @@ const store = async (req, res) => {
 			.json({ errors: [{ msg: 'password does not match.' }] });
 	}
 
-	const salt = await bcrypt.genSalt();
+	try {
+		const user = new User({
+			name,
+			email,
+			password
+		});
 
-	const encryptedPassword = await bcrypt.hash(password, salt);
+		user.password = await bcrypt.hash(password, 10);
 
-	const user = await User.create({
-		name,
-		email,
-		password: encryptedPassword,
-	});
+		await user.save();
 
-	const apiToken = await jwt.sign(
-		{
-			user: {
-				id: user.id,
-				email: user.email,
-			},
-		},
-		process.env.JWT_SECRET,
-		{
-			expiresIn: 60 * 60,
-		}
-	);
-
-	return res.status(200).json({
-		success: [
+		const token = await jwt.sign(
 			{
-				msg: 'user successfully created.',
-				token: apiToken,
+				user: {
+					id: user.id,
+					email: user.email
+				}
 			},
-		],
-	});
+			process.env.JWT_SECRET,
+			{
+				expiresIn: '1d'
+			}
+		);
+
+		return res.status(200).json({
+			user: {
+				name: user.name,
+				email: user.email,
+				token
+			}
+		});
+	} catch (err) {
+		return res.sendStatus(500);
+	}
 };
 
 module.exports = {
-	store,
+	store
 };
